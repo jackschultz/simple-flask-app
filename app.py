@@ -4,6 +4,8 @@ from flask import Flask, render_template, jsonify
 from flask import request, abort
 from flask_sqlalchemy import SQLAlchemy
 
+from flask_paginate import Pagination
+
 NUM_PER_PAGE = 4
 
 app = Flask(__name__)
@@ -31,15 +33,18 @@ class Post(db.Model):
 
 @app.route('/posts/')
 def post_index():
-    page_num = int(request.args.get('page') or '1')
-    post_objs = Post.query.order_by(Post.id.desc()).paginate(page_num, NUM_PER_PAGE)
-    return render_template('posts/index.html', posts=post_objs.items)
+    page = request.args.get('page', type=int, default=1)
+    post_count = Post.query.count()  # for pagination
+    pagination = Pagination(page=page, per_page=NUM_PER_PAGE, total=post_count)
+    post_objs = Post.query.order_by(Post.id.desc()).paginate(page, NUM_PER_PAGE)
+    return render_template('posts/index.html', posts=post_objs.items, pagination=pagination)
 
 
 @app.route('/posts/<post_id>')
 def post_show(post_id):
     int_post_id = int(post_id) # yes yes yes, sql injection
     post = Post.query.get_or_404(int_post_id)
+
     return render_template('posts/show.html', post=post)
 
 
