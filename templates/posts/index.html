@@ -8,8 +8,9 @@
 
 {% for post in posts %}
 <h3>{{post.title}}</h3>
-<p>{{post.body}}</p>
-<small value="{{post.posted_at}}">Posted At: {{post.posted_at.strftime('%m/%d/%Y %H:%M')}} UTC</small>
+<p>{{post.body|truncate(100)}}</p>
+<p><a href="{{ url_for('post_show', post_id=post.id) }}">read full post</a></p>
+<p><small value="{{post.posted_at}}">Posted At: {{post.posted_at.strftime('%m/%d/%Y %H:%M')}} UTC</small></p>
 {% endfor %}
 
 {{pagination.links}}
